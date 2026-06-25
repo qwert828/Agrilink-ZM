@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriLink — Farm to Market, Zambia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+  :root {
+    --soil: #2C1A0E;
+    --harvest: #D4821A;
+    --leaf: #3A6B35;
+    --leaf-light: #5A9E52;
+    --sky: #C8E6F5;
+    --cream: #F9F4EC;
+    --sand: #EDE3D0;
+    --text: #1A1209;
+    --muted: #7A6A55;
+    --white: #FFFFFF;
+    --danger: #C0392B;
+    --success: #27AE60;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--soil);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--harvest);
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--leaf-light); }
+  .nav-role {
+    font-size: 0.75rem;
+    color: var(--sand);
+    display: flex;
+    gap: 8px;
+  }
+  .role-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--sand);
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+  }
+  .role-btn.active {
+    background: var(--harvest);
+    border-color: var(--harvest);
+    color: var(--soil);
+    font-weight: 600;
+  }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(160deg, var(--soil) 0%, #4A2C10 60%, var(--leaf) 100%);
+    padding: 48px 20px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(212,130,26,0.25), transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--harvest);
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-family: 'Lora', serif;
+    font-size: 2rem;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--harvest);
+  }
+  .hero p {
+    color: var(--sand);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 320px;
+    margin: 0 auto 28px;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--harvest);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--sand);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .hero-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--harvest); color: var(--soil); }
+  .btn-primary:hover { background: #E8921F; }
+  .btn-outline { background: transparent; border: 1.5px solid rgba(255,255,255,0.3); color: var(--white); }
+  .btn-outline:hover { background: rgba(255,255,255,0.1); }
+  .btn-leaf { background: var(--leaf); color: var(--white); }
+  .btn-leaf:hover { background: var(--leaf-light); }
+  .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
+  .btn-full { width: 100%; }
+
+  /* SECTIONS */
+  section { padding: 24px 20px; }
+  .section-title {
+    font-family: 'Lora', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--soil);
+    margin-bottom: 4px;
+  }
+  .section-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* CROP PRICE TICKER */
+  .ticker-wrap {
+    background: var(--soil);
+    overflow: hidden;
+    padding: 10px 0;
+  }
+  .ticker {
+    display: flex;
+    gap: 32px;
+    animation: scroll 20s linear infinite;
+    white-space: nowrap;
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .tick-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--sand);
+  }
+  .tick-crop { font-weight: 600; color: var(--white); }
+  .tick-price { color: var(--harvest); font-weight: 600; }
+  .tick-change.up { color: var(--success); }
+  .tick-change.down { color: var(--danger); }
+
+  /* LISTING CARDS */
+  .listings-grid { display: flex; flex-direction: column; gap: 12px; }
+  .listing-card {
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--sand);
+    box-shadow: 0 1px 4px rgba(44,26,14,0.06);
+  }
+  .listing-card-header {
+    background: var(--leaf);
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .listing-crop {
+    font-weight: 700;
+    color: var(--white);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .listing-badge {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge-sell { background: var(--harvest); color: var(--soil); }
+  .badge-buy { background: var(--sky); color: var(--soil); }
+  .listing-card-body { padding: 14px; }
+  .listing-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .meta-item { }
+  .meta-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .meta-value { font-size: 0.9rem; font-weight: 600; color: var(--soil); }
+  .meta-value.price { color: var(--harvest); font-size: 1.05rem; }
+  .listing-footer {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 14px;
+    border-top: 1px solid var(--sand);
+    background: var(--cream);
+  }
+  .farmer-tag {
+    flex: 1;
+    font-size: 0.75rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .farmer-avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--leaf-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    color: white;
+    font-weight: 700;
+  }
+  .inpay-tag {
+    font-size: 0.65rem;
+    color: var(--leaf);
+    font-weight: 600;
+    display: flex; align-items: center; gap: 3px;
+  }
+
+  /* FORM */
+  .form-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid var(--sand);
+  }
+  .form-group { margin-bottom: 16px; }
+  label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--sand);
+    border-radius: 6px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--leaf);
+    background: var(--white);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .inpay-note {
+    background: linear-gradient(135deg, #EBF5EB, #D4F0D4);
+    border: 1px solid var(--leaf-light);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    color: var(--leaf);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--soil);
+    display: flex;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    z-index: 100;
+  }
+  .bnav-item {
+    flex: 1;
+    padding: 10px 4px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+    background: none;
+  }
+  .bnav-item:hover, .bnav-item.active { background: rgba(212,130,26,0.15); }
+  .bnav-icon { font-size: 1.3rem; display: block; }
+  .bnav-label {
+    font-size: 0.6rem;
+    color: var(--sand);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+  .bnav-item.active .bnav-label { color: var(--harvest); }
+
+  /* PAYMENT MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(44,26,14,0.7);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white);
+    border-radius: 16px 16px 0 0;
+    padding: 24px 20px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal-title {
+    font-family: 'Lora', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .modal-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; }
+  .network-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .network-option {
+    border: 2px solid var(--sand);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .network-option:hover, .network-option.selected {
+    border-color: var(--leaf);
+    background: #EBF5EB;
+  }
+  .network-name { font-weight: 700; font-size: 0.85rem; color: var(--soil); }
+  .network-num { font-size: 0.7rem; color: var(--muted); }
+  .pay-summary {
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .pay-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+  .pay-row.total {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--harvest);
+    border-top: 1px solid var(--sand);
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+  .pay-row span:first-child { color: var(--muted); }
+
+  /* DASHBOARD */
+  .dash-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .dash-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--sand);
+  }
+  .dash-card-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .dash-card-value { font-size: 1.4rem; font-weight: 700; color: var(--soil); }
+  .dash-card-value.green { color: var(--leaf); }
+  .dash-card-value.orange { color: var(--harvest); }
+
+  .activity-feed { display: flex; flex-direction: column; gap: 8px; }
+  .activity-item {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--leaf);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .activity-icon { font-size: 1.2rem; }
+  .activity-text { flex: 1; font-size: 0.82rem; color: var(--text); line-height: 1.4; }
+  .activity-time { font-size: 0.68rem; color: var(--muted); }
+
+  /* SMS PROMPT */
+  .sms-band {
+    background: var(--soil);
+    color: var(--sand);
+    padding: 14px 20px;
+    font-size: 0.78rem;
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 80px;
+  }
+  .sms-code {
+    font-family: monospace;
+    background: rgba(212,130,26,0.2);
+    color: var(--harvest);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 70px; left: 50%; transform: translateX(-50%);
+    background: var(--soil);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 0.82rem;
+    z-index: 300;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  .pb-safe { padding-bottom: 80px; }
+
+  /* CHIP FILTER */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1.5px solid var(--sand);
+    background: var(--white);
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .chip.active { background: var(--leaf); border-color: var(--leaf); color: var(--white); }
+
+  .divider { height: 1px; background: var(--sand); margin: 0 -20px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Agri<span>Link</span> ZM</div>
+  <div class="nav-role">
+    <button class="role-btn active" onclick="setRole('farmer')">Farmer</button>
+    <button class="role-btn" onclick="setRole('buyer')">Buyer</button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ============ MARKET VIEW ============ -->
+<div class="view active" id="view-market">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">Live Market · Lusaka, Zambia</div>
+    <h1>Grow more.<br><em>Earn more.</em></h1>
+    <p>Connect directly with verified buyers. Get paid instantly via InPay mobile money. No middlemen.</p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">847</span><span class="stat-label">Farmers</span></div>
+      <div class="stat"><span class="stat-num">214</span><span class="stat-label">Buyers</span></div>
+      <div class="stat"><span class="stat-num">K2.4M</span><span class="stat-label">Paid Out</span></div>
+    </div>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="showTab('sell')">Post Your Produce</button>
+      <button class="btn btn-outline" onclick="showTab('market')">Browse Market</button>
+    </div>
+  </div>
+
+  <!-- Price Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker" id="ticker">
+      <span class="tick-item"><span class="tick-crop">Maize</span> <span class="tick-price">K280/50kg</span> <span class="tick-change up">▲2.1%</span></span>
+      <span class="tick-item"><span class="tick-crop">Soybeans</span> <span class="tick-price">K420/50kg</span> <span class="tick-change up">▲0.8%</span></span>
+      <span class="tick-item"><span class="tick-crop">Groundnuts</span> <span class="tick-price">K650/50kg</span> <span class="tick-change down">▼1.3%</span></span>
+      <span class="tick-item"><span class="tick-crop">Sunflower</span> <span class="tick-price">K310/50kg</span> <span class="tick-change up">▲3.5%</span></span>
+      <span class="tick-item"><span class="tick-crop">Cassava</span> <span class="tick-price">K180/50kg</span> <span class="tick-change down">▼0.5%</span></span>
+      <span class="tick-item"><span class="tick-crop">Tomatoes</span> <span class="tick-price">K95/crate</span> <span class="tick-change up">▲12%</span></span>
+      <span class="tick-item"><span class="tick-crop">Maize</span> <span class="tick-price">K280/50kg</span> <span class="tick-change up">▲2.1%</span></span>
+      <span class="tick-item"><span class="tick-crop">Soybeans</span> <span class="tick-price">K420/50kg</span> <span class="tick-change up">▲0.8%</span></span>
+      <span class="tick-item"><span class="tick-crop">Groundnuts</span> <span class="tick-price">K650/50kg</span> <span class="tick-change down">▼1.3%</span></span>
+      <span class="tick-item"><span class="tick-crop">Sunflower</span> <span class="tick-price">K310/50kg</span> <span class="tick-change up">▲3.5%</span></span>
+    </div>
+  </div>
+
+  <!-- Listings -->
+  <section>
+    <div class="section-title">Available Produce</div>
+    <div class="section-sub">Verified listings — ready for pickup or delivery</div>
+
+    <div class="chips">
+      <div class="chip active" onclick="filterChip(this, 'all')">All</div>
+      <div class="chip" onclick="filterChip(this, 'cereals')">Cereals</div>
+      <div class="chip" onclick="filterChip(this, 'legumes')">Legumes</div>
+      <div class="chip" onclick="filterChip(this, 'vegetables')">Vegetables</div>
+      <div class="chip" onclick="filterChip(this, 'fruits')">Fruits</div>
+      <div class="chip" onclick="filterChip(this, 'oilseeds')">Oilseeds</div>
+    </div>
+
+    <div class="listings-grid" id="listings">
+      <!-- Injected by JS -->
+    </div>
+  </section>
+
+  <!-- SMS Access Band -->
+  <div class="sms-band">
+    📱 No smartphone? Access AgriLink via SMS — text <span class="sms-code">SELL MAIZE 50 K280</span> to <strong>5544</strong>
+  </div>
+
+</div>
+
+<!-- ============ SELL VIEW ============ -->
+<div class="view" id="view-sell">
+  <section>
+    <div class="section-title">Post Your Produce</div>
+    <div class="section-sub">List what you have and set your price</div>
+
+    <div class="inpay-note">
+      ⚡ <div>Payment is processed via <strong>InPay</strong> — funds land directly in your MTN, Airtel, or Zamtel wallet within seconds of a confirmed deal.</div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-group">
+        <label>Crop Type</label>
+        <select id="f-crop">
+          <option value="">Select crop...</option>
+          <option>Maize</option>
+          <option>Soybeans</option>
+          <option>Groundnuts</option>
+          <option>Sunflower</option>
+          <option>Cassava</option>
+          <option>Sweet Potatoes</option>
+          <option>Tomatoes</option>
+          <option>Onions</option>
+          <option>Cabbage</option>
+          <option>Mangoes</option>
+          <option>Bananas</option>
+          <option>Oranges</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" id="f-qty" placeholder="e.g. 20">
+        </div>
+        <div class="form-group">
+          <label>Unit</label>
+          <select id="f-unit">
+            <option>50kg bags</option>
+            <option>Tonnes</option>
+            <option>Crates</option>
+            <option>Kg</option>
+            <option>Bunches</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price (ZMW)</label>
+          <input type="number" id="f-price" placeholder="e.g. 280">
+        </div>
+        <div class="form-group">
+          <label>Grade</label>
+          <select id="f-grade">
+            <option>Grade A</option>
+            <option>Grade B</option>
+            <option>Grade C</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Location / District</label>
+        <input type="text" id="f-loc" placeholder="e.g. Chongwe, Lusaka Province">
+      </div>
+      <div class="form-group">
+        <label>Available From</label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="form-group">
+        <label>Additional Notes</label>
+        <textarea id="f-notes" placeholder="e.g. Organic, no chemicals used. Buyer can inspect on-farm."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Receive Payment Via</label>
+        <select id="f-network">
+          <option>MTN Mobile Money</option>
+          <option>Airtel Money</option>
+          <option>Zamtel Kwacha</option>
+          <option>SpeedPay/Zanaco</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="tel" id="f-phone" placeholder="+260 97X XXX XXX">
+      </div>
+      <button class="btn btn-leaf btn-full" onclick="postListing()">Post Listing</button>
+    </div>
+  </section>
+  <div style="height: 80px;"></div>
+</div>
+
+<!-- ============ DASHBOARD VIEW ============ -->
+<div class="view" id="view-dash">
+  <section>
+    <div class="section-title">Your Dashboard</div>
+    <div class="section-sub">Farmer: Bwalya Mwansa · Chongwe District</div>
+
+    <div class="dash-cards">
+      <div class="dash-card">
+        <div class="dash-card-label">Active Listings</div>
+        <div class="dash-card-value orange" id="d-listings">3</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">Deals Closed</div>
+        <div class="dash-card-value green">12</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">Total Earned</div>
+        <div class="dash-card-value orange">K18,400</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-label">Avg. Price Premium</div>
+        <div class="dash-card-value green">+14%</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-bottom:12px;">Recent Activity</div>
+    <div class="activity-feed">
+      <div class="activity-item">
+        <div class="activity-icon">💰</div>
+        <div class="activity-text"><strong>K4,200 received</strong> via MTN MoMo for 15× 50kg Maize — Freshco Zambia Ltd</div>
+        <div class="activity-time">2h ago</div>
+      </div>
+      <div class="activity-item" style="border-left-color: var(--harvest);">
+        <div class="activity-icon">👁️</div>
+        <div class="activity-text"><strong>8 buyers</strong> viewed your Soybeans listing today</div>
+        <div class="activity-time">5h ago</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">📦</div>
+        <div class="activity-text"><strong>New offer received</strong> — K300/bag for 30 bags of Groundnuts from Agri-Partners ZM</div>
+        <div class="activity-time">Yesterday</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon">✅</div>
+        <div class="activity-text"><strong>Identity verified</strong> — your account is trusted by buyers</div>
+        <div class="activity-time">3 days ago</div>
+      </div>
+    </div>
+  </section>
+  <div style="height: 80px;"></div>
+</div>
+
+<!-- ============ BOTTOM NAV ============ -->
+<div class="bottom-nav">
+  <button class="bnav-item active" onclick="showTab('market')" id="btn-market">
+    <span class="bnav-icon">🌽</span>
+    <div class="bnav-label">Market</div>
+  </button>
+  <button class="bnav-item" onclick="showTab('sell')" id="btn-sell">
+    <span class="bnav-icon">📦</span>
+    <div class="bnav-label">Sell</div>
+  </button>
+  <button class="bnav-item" onclick="showTab('dash')" id="btn-dash">
+    <span class="bnav-icon">📊</span>
+    <div class="bnav-label">My Farm</div>
+  </button>
+</div>
+
+<!-- ============ PAYMENT MODAL ============ -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <div class="modal-title">Buy via InPay</div>
+    <div class="modal-sub" id="modal-desc">Confirm your purchase and mobile money network</div>
+
+    <div class="network-grid">
+      <div class="network-option" onclick="selectNetwork(this, 'MTN')">
+        <div class="network-name">MTN MoMo</div>
+        <div class="network-num">096/076</div>
+      </div>
+      <div class="network-option" onclick="selectNetwork(this, 'Airtel')">
+        <div class="network-name">Airtel Money</div>
+        <div class="network-num">097/077</div>
+      </div>
+      <div class="network-option" onclick="selectNetwork(this, 'Zamtel')">
+        <div class="network-name">Zamtel Kwacha</div>
+        <div class="network-num">095/075</div>
+      </div>
+      <div class="network-option" onclick="selectNetwork(this, 'Zanaco')">
+        <div class="network-name">SpeedPay</div>
+        <div class="network-num">Zanaco</div>
+      </div>
+    </div>
+
+    <div class="pay-summary" id="pay-summary">
+      <div class="pay-row"><span>Produce</span><span id="ps-crop">—</span></div>
+      <div class="pay-row"><span>Quantity</span><span id="ps-qty">—</span></div>
+      <div class="pay-row"><span>Unit Price</span><span id="ps-price">—</span></div>
+      <div class="pay-row"><span>InPay Fee (1.78%)</span><span id="ps-fee">—</span></div>
+      <div class="pay-row total"><span>Total</span><span id="ps-total">—</span></div>
+    </div>
+
+    <div class="form-group">
+      <label>Your Mobile Number</label>
+      <input type="tel" id="pay-phone" placeholder="+260 97X XXX XXX">
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="confirmPayment()" style="margin-bottom:10px;">Confirm & Pay via InPay</button>
+    <button class="btn btn-outline" style="width:100%;border-color:var(--sand);color:var(--muted);" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+const listings = [
+  { id:1, crop:'Maize', qty:50, unit:'50kg bags', price:280, grade:'Grade A', location:'Chongwe, Lusaka', farmer:'Bwalya M.', initials:'BM', available:'Today', category:'cereals' },
+  { id:2, crop:'Soybeans', qty:30, unit:'50kg bags', price:420, grade:'Grade A', location:'Mkushi, Central', farmer:'Chanda K.', initials:'CK', available:'Tomorrow', category:'legumes' },
+  { id:3, crop:'Tomatoes', qty:40, unit:'Crates', price:95, grade:'Grade B', location:'Kafue, Lusaka', farmer:'Mutale N.', initials:'MN', available:'Today', category:'vegetables' },
+  { id:4, crop:'Groundnuts', qty:20, unit:'50kg bags', price:650, grade:'Grade A', location:'Chipata, Eastern', farmer:'Tembo P.', initials:'TP', available:'3 days', category:'legumes' },
+  { id:5, crop:'Mangoes', qty:60, unit:'Crates', price:75, grade:'Grade A', location:'Petauke, Eastern', farmer:'Lungu F.', initials:'LF', available:'Today', category:'fruits' },
+  { id:6, crop:'Sunflower', qty:25, unit:'50kg bags', price:310, grade:'Grade B', location:'Mazabuka, Southern', farmer:'Mwale G.', initials:'MW', available:'This week', category:'oilseeds' },
+];
+
+let currentFilter = 'all';
+let selectedNetwork = '';
+let activeListing = null;
+
+function renderListings(filter) {
+  const grid = document.getElementById('listings');
+  const filtered = filter === 'all' ? listings : listings.filter(l => l.category === filter);
+  grid.innerHTML = filtered.map(l => `
+    <div class="listing-card">
+      <div class="listing-card-header">
+        <div class="listing-crop">🌾 ${l.crop}</div>
+        <span class="listing-badge badge-sell">Selling</span>
+      </div>
+      <div class="listing-card-body">
+        <div class="listing-meta">
+          <div class="meta-item">
+            <div class="meta-label">Price / Unit</div>
+            <div class="meta-value price">K${l.price}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Quantity</div>
+            <div class="meta-value">${l.qty} ${l.unit}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Grade</div>
+            <div class="meta-value">${l.grade}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Available</div>
+            <div class="meta-value">${l.available}</div>
+          </div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">📍 ${l.location}</div>
+        <button class="btn btn-leaf btn-sm btn-full" onclick="openPayModal(${l.id})">Buy — Pay via InPay</button>
+      </div>
+      <div class="listing-footer">
+        <div class="farmer-tag">
+          <div class="farmer-avatar">${l.initials}</div>
+          ${l.farmer}
+        </div>
+        <div class="inpay-tag">⚡ InPay</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterChip(el, filter) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = filter;
+  renderListings(filter);
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.getElementById('btn-' + tab).classList.add('active');
+}
+
+function setRole(role) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  showToast(role === 'farmer' ? '🌾 Switched to Farmer view' : '🛒 Switched to Buyer view');
+}
+
+function openPayModal(id) {
+  activeListing = listings.find(l => l.id === id);
+  const fee = Math.round(activeListing.price * 0.0178 * 100) / 100;
+  const total = (activeListing.price + fee).toFixed(2);
+  document.getElementById('modal-desc').textContent = `Buying ${activeListing.crop} from ${activeListing.farmer}`;
+  document.getElementById('ps-crop').textContent = activeListing.crop;
+  document.getElementById('ps-qty').textContent = `1 ${activeListing.unit}`;
+  document.getElementById('ps-price').textContent = `K${activeListing.price}`;
+  document.getElementById('ps-fee').textContent = `K${fee}`;
+  document.getElementById('ps-total').textContent = `K${total}`;
+  selectedNetwork = '';
+  document.querySelectorAll('.network-option').forEach(n => n.classList.remove('selected'));
+  document.getElementById('payModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('payModal').classList.remove('open');
+}
+
+function selectNetwork(el, name) {
+  document.querySelectorAll('.network-option').forEach(n => n.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedNetwork = name;
+}
+
+function confirmPayment() {
+  const phone = document.getElementById('pay-phone').value;
+  if (!selectedNetwork) { showToast('⚠️ Select a payment network'); return; }
+  if (!phone) { showToast('⚠️ Enter your mobile number'); return; }
+  closeModal();
+  showToast(`✅ Payment initiated via ${selectedNetwork} — check your phone`);
+}
+
+function postListing() {
+  const crop = document.getElementById('f-crop').value;
+  const qty = document.getElementById('f-qty').value;
+  const price = document.getElementById('f-price').value;
+  const loc = document.getElementById('f-loc').value;
+  const phone = document.getElementById('f-phone').value;
+  if (!crop || !qty || !price || !loc || !phone) {
+    showToast('⚠️ Please fill in all required fields');
+    return;
+  }
+  // Add to listings
+  listings.unshift({
+    id: listings.length + 1,
+    crop, qty: parseInt(qty),
+    unit: document.getElementById('f-unit').value,
+    price: parseInt(price),
+    grade: document.getElementById('f-grade').value,
+    location: loc,
+    farmer: 'You',
+    initials: 'ME',
+    available: 'Today',
+    category: 'cereals'
+  });
+  // Update dashboard
+  const current = parseInt(document.getElementById('d-listings').textContent);
+  document.getElementById('d-listings').textContent = current + 1;
+  showToast(`✅ ${crop} listed — buyers can see it now`);
+  showTab('market');
+  renderListings('all');
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.chip').classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+renderListings('all');
+</script>
+</body>
+</html>
